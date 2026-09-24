@@ -12,6 +12,10 @@ import os from 'os';
 import {Architecture} from './types.js';
 import {Outputs} from './constants.js';
 
+// Sentinel value for the `go-version` input that makes the action resolve the
+// version from the `go-version-file` input instead. See issue #450.
+export const VERSION_FILE_SENTINEL = 'go-version-file';
+
 export async function run() {
   try {
     //
@@ -219,7 +223,23 @@ function resolveVersionInput(): string {
   let version = core.getInput('go-version');
   const versionFilePath = core.getInput('go-version-file');
 
-  if (version && versionFilePath) {
+  // `go-version: 'go-version-file'` explicitly defers to the go-version-file input.
+  // This makes it possible to include the version declared in the version file as
+  // one entry of a build matrix, e.g.
+  //   matrix:
+  //     go-version: ['stable', 'oldstable', 'go-version-file']
+  if (version === VERSION_FILE_SENTINEL) {
+    if (!versionFilePath) {
+      throw new Error(
+        `go-version is set to '${VERSION_FILE_SENTINEL}', but the go-version-file input was not provided`
+      );
+    }
+
+    core.info(
+      `go-version is set to '${VERSION_FILE_SENTINEL}', resolving the version from ${versionFilePath}`
+    );
+    version = '';
+  } else if (version && versionFilePath) {
     core.warning(
       'Both go-version and go-version-file inputs are specified, only go-version will be used'
     );

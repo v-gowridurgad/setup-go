@@ -38,6 +38,7 @@ See [action.yml](action.yml).
 - uses: actions/setup-go@v7
   with:
     # Version or version range of Go to use
+    # Can also be set to 'go-version-file' to resolve the version from go-version-file
     go-version: '1.23'
     
     # Path to go.mod, go.work, .go-version, or .tool-versions file

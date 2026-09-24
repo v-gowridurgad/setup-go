@@ -215,6 +215,29 @@ steps:
   - run: go version
 ```
 
+### Using the version file in a build matrix
+
+Set `go-version` to the special value `go-version-file` to resolve the version from the `go-version-file` input. This makes it possible to include the version declared in the version file as one entry of a build matrix, alongside values such as `stable` and `oldstable`, without duplicating that version in the workflow.
+
+```yaml
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['stable', 'oldstable', 'go-version-file']
+    name: Go ${{ matrix.go-version }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: ${{ matrix.go-version }}
+          go-version-file: 'go.mod' # Used when go-version is set to go-version-file
+      - run: go test ./...
+```
+
+If `go-version` is set to `go-version-file` and the `go-version-file` input is not provided, the action fails with an error.
+
 ## Check latest version
 
 The `check-latest` flag defaults to `false`. Use the default or set `check-latest` to `false` if you prefer stability
