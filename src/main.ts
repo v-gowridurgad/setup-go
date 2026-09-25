@@ -12,9 +12,9 @@ import os from 'os';
 import {Architecture} from './types.js';
 import {Outputs} from './constants.js';
 
-// Sentinel value for the `go-version` input that makes the action resolve the
+// Special value for the `go-version` input that makes the action resolve the
 // version from the `go-version-file` input instead. See issue #450.
-export const VERSION_FILE_SENTINEL = 'go-version-file';
+export const VERSION_FILE_KEYWORD = 'go-version-file';
 
 export async function run() {
   try {
@@ -228,15 +228,15 @@ function resolveVersionInput(): string {
   // one entry of a build matrix, e.g.
   //   matrix:
   //     go-version: ['stable', 'oldstable', 'go-version-file']
-  if (version === VERSION_FILE_SENTINEL) {
+  if (version === VERSION_FILE_KEYWORD) {
     if (!versionFilePath) {
       throw new Error(
-        `go-version is set to '${VERSION_FILE_SENTINEL}', but the go-version-file input was not provided`
+        `go-version is set to '${VERSION_FILE_KEYWORD}', but the go-version-file input was not provided`
       );
     }
 
     core.info(
-      `go-version is set to '${VERSION_FILE_SENTINEL}', resolving the version from ${versionFilePath}`
+      `go-version is set to '${VERSION_FILE_KEYWORD}', resolving the version from ${versionFilePath}`
     );
     version = '';
   } else if (version && versionFilePath) {

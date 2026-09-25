@@ -1130,7 +1130,7 @@ use .
       );
     });
 
-    it('is used when go-version is set to the go-version-file sentinel', async () => {
+    it("is used when go-version is set to 'go-version-file'", async () => {
       inputs['go-version'] = 'go-version-file';
       inputs['go-version-file'] = 'go.mod';
       existsSpy.mockImplementation(() => true);
@@ -1149,7 +1149,7 @@ use .
       );
     });
 
-    it('resolves the sentinel against any supported version file', async () => {
+    it('resolves the keyword against any supported version file', async () => {
       inputs['go-version'] = 'go-version-file';
       inputs['go-version-file'] = 'go.work';
       existsSpy.mockImplementation(() => true);
@@ -1162,7 +1162,7 @@ use .
       expect(logSpy).toHaveBeenCalledWith('matching 1.19...');
     });
 
-    it('fails when the sentinel is used without go-version-file', async () => {
+    it('fails when the keyword is used without go-version-file', async () => {
       inputs['go-version'] = 'go-version-file';
 
       await main.run();
@@ -1172,7 +1172,7 @@ use .
       );
     });
 
-    it('reports a read failure when the sentinel points at a missing file', async () => {
+    it('reports a read failure when the keyword points at a missing file', async () => {
       inputs['go-version'] = 'go-version-file';
       inputs['go-version-file'] = 'go.mod';
       existsSpy.mockImplementation(() => false);
