@@ -1130,6 +1130,60 @@ use .
       );
     });
 
+    it("is used when go-version is set to 'go-version-file'", async () => {
+      inputs['go-version'] = 'go-version-file';
+      inputs['go-version-file'] = 'go.mod';
+      existsSpy.mockImplementation(() => true);
+      readFileSpy.mockImplementation(() => Buffer.from(goModContents));
+
+      await main.run();
+
+      expect(logSpy).toHaveBeenCalledWith(
+        "go-version is set to 'go-version-file', resolving the version from go.mod"
+      );
+      expect(logSpy).toHaveBeenCalledWith('Setup go version spec 1.14');
+      expect(logSpy).toHaveBeenCalledWith('Attempting to download 1.14...');
+      expect(logSpy).toHaveBeenCalledWith('matching 1.14...');
+      expect(warningSpy).not.toHaveBeenCalledWith(
+        'Both go-version and go-version-file inputs are specified, only go-version will be used'
+      );
+    });
+
+    it('resolves the keyword against any supported version file', async () => {
+      inputs['go-version'] = 'go-version-file';
+      inputs['go-version-file'] = 'go.work';
+      existsSpy.mockImplementation(() => true);
+      readFileSpy.mockImplementation(() => Buffer.from(goWorkContents));
+
+      await main.run();
+
+      expect(logSpy).toHaveBeenCalledWith('Setup go version spec 1.19');
+      expect(logSpy).toHaveBeenCalledWith('Attempting to download 1.19...');
+      expect(logSpy).toHaveBeenCalledWith('matching 1.19...');
+    });
+
+    it('fails when the keyword is used without go-version-file', async () => {
+      inputs['go-version'] = 'go-version-file';
+
+      await main.run();
+
+      expect(cnSpy).toHaveBeenCalledWith(
+        `::error::go-version is set to 'go-version-file', but the go-version-file input was not provided${osm.EOL}`
+      );
+    });
+
+    it('reports a read failure when the keyword points at a missing file', async () => {
+      inputs['go-version'] = 'go-version-file';
+      inputs['go-version-file'] = 'go.mod';
+      existsSpy.mockImplementation(() => false);
+
+      await main.run();
+
+      expect(cnSpy).toHaveBeenCalledWith(
+        `::error::The specified go version file at: go.mod does not exist${osm.EOL}`
+      );
+    });
+
     it('acquires specified architecture of go', async () => {
       for (const {arch, version, osSpec} of [
         {arch: 'amd64', version: '1.13.7', osSpec: 'linux'},
